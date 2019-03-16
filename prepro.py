@@ -36,27 +36,27 @@ def prepro(hp):
     # train
     _prepro = lambda x:  [line.strip() for line in open(x, 'r').read().split("\n") \
                       if not line.startswith("<")]
-    prepro_train1, prepro_train2 = _prepro(train1), _prepro(train2)
+    prepro_train1, prepro_train2 = _prepro(train1)[:100], _prepro(train2)[:100]
     assert len(prepro_train1)==len(prepro_train2), "Check if train source and target files match."
 
     # eval
     _prepro = lambda x: [re.sub("<[^>]+>", "", line).strip() \
                      for line in open(x, 'r').read().split("\n") \
                      if line.startswith("<seg id")]
-    prepro_eval1, prepro_eval2 = _prepro(eval1), _prepro(eval2)
+    prepro_eval1, prepro_eval2 = _prepro(eval1)[:100], _prepro(eval2)[:100]
     assert len(prepro_eval1) == len(prepro_eval2), "Check if eval source and target files match."
 
     # test
-    prepro_test1, prepro_test2 = _prepro(test1), _prepro(test2)
+    prepro_test1, prepro_test2 = _prepro(test1)[:100], _prepro(test2)[:100]
     assert len(prepro_test1) == len(prepro_test2), "Check if test source and target files match."
 
     logging.info("Let's see how preprocessed data look like")
-    logging.info("prepro_train1:", prepro_train1[0])
-    logging.info("prepro_train2:", prepro_train2[0])
-    logging.info("prepro_eval1:", prepro_eval1[0])
-    logging.info("prepro_eval2:", prepro_eval2[0])
-    logging.info("prepro_test1:", prepro_test1[0])
-    logging.info("prepro_test2:", prepro_test2[0])
+    logging.info("prepro_train1:"+str(prepro_train1[0]))
+#     logging.info("prepro_train2:", prepro_train2[0])
+#     logging.info("prepro_eval1:", prepro_eval1[0])
+#     logging.info("prepro_eval2:", prepro_eval2[0])
+#     logging.info("prepro_test1:", prepro_test1[0])
+#     logging.info("prepro_test2:", prepro_test2[0])
 
     logging.info("# write preprocessed files to disk")
     os.makedirs("iwslt2016/prepro", exist_ok=True)
