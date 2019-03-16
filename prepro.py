@@ -36,18 +36,18 @@ def prepro(hp):
     # train
     _prepro = lambda x:  [line.strip() for line in open(x, 'r').read().split("\n") \
                       if not line.startswith("<")]
-    prepro_train1, prepro_train2 = _prepro(train1)[:100], _prepro(train2)[:100]
+    prepro_train1, prepro_train2 = _prepro(train1)[:50], _prepro(train2)[:50]
     assert len(prepro_train1)==len(prepro_train2), "Check if train source and target files match."
 
     # eval
     _prepro = lambda x: [re.sub("<[^>]+>", "", line).strip() \
                      for line in open(x, 'r').read().split("\n") \
                      if line.startswith("<seg id")]
-    prepro_eval1, prepro_eval2 = _prepro(eval1)[:100], _prepro(eval2)[:100]
+    prepro_eval1, prepro_eval2 = _prepro(eval1)[:10], _prepro(eval2)[:10]
     assert len(prepro_eval1) == len(prepro_eval2), "Check if eval source and target files match."
 
     # test
-    prepro_test1, prepro_test2 = _prepro(test1)[:100], _prepro(test2)[:100]
+    prepro_test1, prepro_test2 = _prepro(test1)[:10], _prepro(test2)[:10]
     assert len(prepro_test1) == len(prepro_test2), "Check if test source and target files match."
 
     logging.info("Let's see how preprocessed data look like")
