@@ -67,6 +67,7 @@ def postprocess(hypotheses, idx2token):
     '''
     _hypotheses = []
     for h in hypotheses:
+        print(h)
         sent = "".join(idx2token[idx] for idx in h)
         sent = sent.split("</s>")[0].strip()
         sent = sent.replace("▁", " ") # remove bpe symbols
