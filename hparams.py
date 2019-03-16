@@ -4,7 +4,7 @@ class Hparams:
     parser = argparse.ArgumentParser()
 
     # prepro
-    parser.add_argument('--vocab_size', default=32000, type=int)
+    parser.add_argument('--vocab_size', default=3200, type=int)
 
     # train
     ## files
@@ -24,8 +24,8 @@ class Hparams:
                         help="vocabulary file path")
 
     # training scheme
-    parser.add_argument('--batch_size', default=128, type=int)
-    parser.add_argument('--eval_batch_size', default=128, type=int)
+    parser.add_argument('--batch_size', default=8, type=int)
+    parser.add_argument('--eval_batch_size', default=8, type=int)
 
     parser.add_argument('--lr', default=0.0003, type=float, help="learning rate")
     parser.add_argument('--warmup_steps', default=4000, type=int)
@@ -56,5 +56,5 @@ class Hparams:
     parser.add_argument('--test2', default='iwslt2016/prepro/test.en',
                         help="english test data")
     parser.add_argument('--ckpt', help="checkpoint file path")
-    parser.add_argument('--test_batch_size', default=128, type=int)
+    parser.add_argument('--test_batch_size', default=8, type=int)
     parser.add_argument('--testdir', default="test/1", help="test result dir")
