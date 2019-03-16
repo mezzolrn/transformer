@@ -88,7 +88,7 @@ with tf.Session() as sess:
                 fout.write("\n".join(hypotheses))
 
             logging.info("# calc bleu score and append it to translation")
-            calc_bleu(hp.eval3, translation)
+            # calc_bleu(hp.eval3, translation)
 
             logging.info("# save models")
             ckpt_name = os.path.join(hp.logdir, model_output)
