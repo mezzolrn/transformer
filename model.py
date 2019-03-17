@@ -44,7 +44,7 @@ class Transformer:
 
             # embedding
             # enc = tf.nn.embedding_lookup(self.embeddings, x)  # (N, T1, d_model)
-            enc = np.reshape(x[1], [-1, 10, 12])
+            enc = x
             enc *= self.hp.d_model**0.5  # scale
 
             enc += positional_encoding(enc, self.hp.maxlen1)
@@ -81,8 +81,7 @@ class Transformer:
 
             # embedding
             # dec = tf.nn.embedding_lookup(self.embeddings, decoder_inputs)  # (N, T2, d_model)
-            dec = np.reshape(decoder_inputs, [-1, 10, 12])
-            y = np.reshape(y, [10, 12])
+            dec = decoder_inputs
             dec *= self.hp.d_model ** 0.5  # scale
 
             dec += positional_encoding(dec, self.hp.maxlen2)

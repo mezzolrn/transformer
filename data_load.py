@@ -11,6 +11,7 @@ For example, fpath1, fpath2 means source file path and target file path, respect
 '''
 import tensorflow as tf
 from utils import calc_num_batches
+import numpy as np
 
 # def load_vocab(vocab_fpath):
 #     '''Loads vocabulary file and returns idx<->token maps
@@ -78,9 +79,9 @@ def generator_fn(sents1, sents2):
         sent2: str. target sentence
     '''
     for sent1, sent2 in zip(sents1, sents2):
-        x = list(sent1)  # 120 number
-        y = list(sent1)[-12:]+list(sent2)
-        decoder_input, y = y[:-12], y[12:]
+        x = np.reshape(list(sent1),[10,12])  # 120 number
+        y = np.reshape(list(sent1)[-12:]+list(sent2), [11,12])
+        decoder_input, y = y[:-1], y[1:]
 
         yield (x), (decoder_input, y)
 
