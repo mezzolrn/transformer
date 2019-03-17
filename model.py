@@ -33,7 +33,7 @@ class Transformer:
     def __init__(self, hp):
         self.hp = hp
         # self.token2idx, self.idx2token = load_vocab(hp.vocab)
-        # self.embeddings = get_token_embeddings(self.hp.vocab_size, self.hp.d_model, zero_pad=True)
+        self.embeddings = get_token_embed .dings(self.hp.vocab_size, self.hp.d_model, zero_pad=True)
 
     def encode(self, x, training=True):
         '''
@@ -44,6 +44,10 @@ class Transformer:
 
             # embedding
             # enc = tf.nn.embedding_lookup(self.embeddings, x)  # (N, T1, d_model)
+            x = tf.get_variable('something',
+                                   dtype=tf.float32,
+                                   shape=(-1, 10, 12),
+                                   initializer=x)
             enc = x
             enc *= self.hp.d_model**0.5  # scale
 
