@@ -124,7 +124,7 @@ def input_fn(sents1, sents2, batch_size, shuffle=False):
     return dataset
 
 
-def get_batch(fpath1, fpath2, vocab_fpath, batch_size, shuffle=False):
+def get_batch(fpath1, fpath2, batch_size, shuffle=False):
     '''Gets training / evaluation mini-batches
     fpath1: source file path. string.
     fpath2: target file path. string.
