@@ -33,9 +33,9 @@ class Hparams:
                         help="number of encoder/decoder blocks")
     parser.add_argument('--num_heads', default=8, type=int,
                         help="number of attention heads")
-    parser.add_argument('--maxlen1', default=10, type=int,
+    parser.add_argument('--maxlen1', default=120, type=int,
                         help="maximum length of a source sequence")
-    parser.add_argument('--maxlen2', default=11, type=int,
+    parser.add_argument('--maxlen2', default=120, type=int,
                         help="maximum length of a target sequence")
     parser.add_argument('--dropout_rate', default=0.3, type=float)
     parser.add_argument('--smoothing', default=0.1, type=float,

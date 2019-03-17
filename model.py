@@ -8,8 +8,8 @@ https://www.github.com/kyubyong/transformer
 Transformer network
 '''
 import tensorflow as tf
+import numpy as np
 
-from data_load import load_vocab
 from modules import get_token_embeddings, ff, positional_encoding, multihead_attention, label_smoothing, noam_scheme
 from utils import convert_idx_to_token_tensor
 from tqdm import tqdm
@@ -32,25 +32,25 @@ class Transformer:
     '''
     def __init__(self, hp):
         self.hp = hp
-        self.token2idx, self.idx2token = load_vocab(hp.vocab)
+        # self.token2idx, self.idx2token = load_vocab(hp.vocab)
         self.embeddings = get_token_embeddings(self.hp.vocab_size, self.hp.d_model, zero_pad=True)
 
-    def encode(self, xs, training=True):
+    def encode(self, x, training=True):
         '''
         Returns
         memory: encoder outputs. (N, T1, d_model)
         '''
         with tf.variable_scope("encoder", reuse=tf.AUTO_REUSE):
-            x, seqlens, sents1 = xs
 
             # embedding
-            enc = tf.nn.embedding_lookup(self.embeddings, x) # (N, T1, d_model)
-            enc *= self.hp.d_model**0.5 # scale
+            # enc = tf.nn.embedding_lookup(self.embeddings, x)  # (N, T1, d_model)
+            enc = np.reshape(x, [10, 12])
+            enc *= self.hp.d_model**0.5  # scale
 
             enc += positional_encoding(enc, self.hp.maxlen1)
             enc = tf.layers.dropout(enc, self.hp.dropout_rate, training=training)
 
-            ## Blocks
+            # Blocks
             for i in range(self.hp.num_blocks):
                 with tf.variable_scope("num_blocks_{}".format(i), reuse=tf.AUTO_REUSE):
                     # self-attention
@@ -64,7 +64,7 @@ class Transformer:
                     # feed forward
                     enc = ff(enc, num_units=[self.hp.d_ff, self.hp.d_model])
         memory = enc
-        return memory, sents1
+        return memory
 
     def decode(self, ys, memory, training=True):
         '''
@@ -77,10 +77,12 @@ class Transformer:
         sents2: (N,). string.
         '''
         with tf.variable_scope("decoder", reuse=tf.AUTO_REUSE):
-            decoder_inputs, y, seqlens, sents2 = ys
+            decoder_inputs, y = ys
 
             # embedding
-            dec = tf.nn.embedding_lookup(self.embeddings, decoder_inputs)  # (N, T2, d_model)
+            # dec = tf.nn.embedding_lookup(self.embeddings, decoder_inputs)  # (N, T2, d_model)
+            dec = np.reshape(decoder_inputs, [10, 12])
+            y = np.reshape(y, [10, 12])
             dec *= self.hp.d_model ** 0.5  # scale
 
             dec += positional_encoding(dec, self.hp.maxlen2)
@@ -108,15 +110,15 @@ class Transformer:
                                               training=training,
                                               causality=False,
                                               scope="vanilla_attention")
-                    ### Feed Forward
+                    # Feed Forward
                     dec = ff(dec, num_units=[self.hp.d_ff, self.hp.d_model])
 
         # Final linear projection (embedding weights are shared)
-        weights = tf.transpose(self.embeddings) # (d_model, vocab_size)
-        logits = tf.einsum('ntd,dk->ntk', dec, weights) # (N, T2, vocab_size)
-        y_hat = tf.to_int32(tf.argmax(logits, axis=-1))
-
-        return logits, y_hat, y, sents2
+        # weights = tf.transpose(self.embeddings) # (d_model, vocab_size)
+        # logits = tf.einsum('ntd,dk->ntk', dec, weights) # (N, T2, vocab_size)
+        # y_hat = tf.to_int32(tf.argmax(logits, axis=-1))
+        logits = dec
+        return logits, y
 
     def train(self, xs, ys):
         '''
@@ -127,14 +129,14 @@ class Transformer:
         summaries: training summary node
         '''
         # forward
-        memory, sents1 = self.encode(xs)
-        logits, preds, y, sents2 = self.decode(ys, memory)
+        memory = self.encode(xs)
+        logits, y = self.decode(ys, memory)
 
         # train scheme
-        y_ = label_smoothing(tf.one_hot(y, depth=self.hp.vocab_size))
-        ce = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y_)
-        nonpadding = tf.to_float(tf.not_equal(y, self.token2idx["<pad>"]))  # 0: <pad>
-        loss = tf.reduce_sum(ce * nonpadding) / (tf.reduce_sum(nonpadding) + 1e-7)
+        y_ = label_smoothing(y)
+        loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y_)
+        # nonpadding = tf.to_float(tf.not_equal(y, self.token2idx["<pad>"]))  # 0: <pad>
+        # loss = tf.reduce_sum(ce * nonpadding) / (tf.reduce_sum(nonpadding) + 1e-7)
 
         global_step = tf.train.get_or_create_global_step()
         lr = noam_scheme(self.hp.lr, global_step, self.hp.warmup_steps)
@@ -155,31 +157,27 @@ class Transformer:
         Returns
         y_hat: (N, T2)
         '''
-        decoder_inputs, y, y_seqlen, sents2 = ys
-
-        decoder_inputs = tf.ones((tf.shape(xs[0])[0], 1), tf.int32) * self.token2idx["<s>"]
-        ys = (decoder_inputs, y, y_seqlen, sents2)
-
-        memory, sents1 = self.encode(xs, False)
+        decoder_inputs, y = ys
+        ys = (decoder_inputs[0], y)
+        memory = self.encode(xs, False)
 
         logging.info("Inference graph is being built. Please be patient.")
-        for _ in tqdm(range(self.hp.maxlen2)):
-            logits, y_hat, y, sents2 = self.decode(ys, memory, False)
-            if tf.reduce_sum(y_hat, 1) == self.token2idx["<pad>"]: break
+        for _ in tqdm(range(self.hp.maxlen2/12)):
+            logits, y = self.decode(ys, memory, False)
 
-            _decoder_inputs = tf.concat((decoder_inputs, y_hat), 1)
-            ys = (_decoder_inputs, y, y_seqlen, sents2)
+            _decoder_inputs = tf.concat((decoder_inputs, logits), 1)
+            ys = (_decoder_inputs, y)
 
         # monitor a random sample
-        n = tf.random_uniform((), 0, tf.shape(y_hat)[0]-1, tf.int32)
-        sent1 = sents1[n]
-        pred = convert_idx_to_token_tensor(y_hat[n], self.idx2token)
-        sent2 = sents2[n]
+        n = tf.random_uniform((), 0, tf.shape(logits)[0]-1, tf.int32)
+        sent1 = xs[n]
+        pred = logits[n]
+        sent2 = ys[1][n]
 
         tf.summary.text("sent1", sent1)
         tf.summary.text("pred", pred)
         tf.summary.text("sent2", sent2)
         summaries = tf.summary.merge_all()
 
-        return y_hat, summaries
+        return logits, summaries
 
