@@ -26,8 +26,8 @@ hp = parser.parse_args()
 save_hparams(hp, hp.logdir)
 
 logging.info("# Prepare train/eval batches")
-train_batches, num_train_batches, num_train_samples = get_batch(hp.train1, hp.train2, hp.batch_size, shuffle=True)
-eval_batches, num_eval_batches, num_eval_samples = get_batch(hp.eval1, hp.eval2, hp.batch_size, shuffle=False)
+train_batches, num_train_batches, num_train_samples = get_batch(hp.prepro_train_feature_pre, hp.prepro_train_feature_post, hp.batch_size, shuffle=True)
+eval_batches, num_eval_batches, num_eval_samples = get_batch(hp.prepro_eval_feature_pre, hp.prepro_eval_feature_post, hp.batch_size, shuffle=False)
 
 # create a iterator of the correct shape and type
 iter = tf.data.Iterator.from_structure(train_batches.output_types, train_batches.output_shapes)
