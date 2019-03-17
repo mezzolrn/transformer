@@ -4,13 +4,13 @@ class Hparams:
     parser = argparse.ArgumentParser()
 
     # train
-    parser.add_argument('--prepro_train_feature_pre', default='data/prepro/prepro_train_feature_pre.txt',
+    parser.add_argument('--prepro_train_feature_pre', default='data/prepro/prepro_train_feature_pre',
                         help="training feature")
-    parser.add_argument('--prepro_train_feature_post', default='data/prepro/prepro_train_feature_post.txt',
+    parser.add_argument('--prepro_train_feature_post', default='data/prepro/prepro_train_feature_post',
                         help="training feature")
-    parser.add_argument('--prepro_eval_feature_pre', default='data/prepro/prepro_eval_feature_pre.txt',
+    parser.add_argument('--prepro_eval_feature_pre', default='data/prepro/prepro_eval_feature_pre',
                         help="eval feature")
-    parser.add_argument('--prepro_eval_feature_post', default='data/prepro/prepro_eval_feature_post.txt',
+    parser.add_argument('--prepro_eval_feature_post', default='data/prepro/prepro_eval_feature_post',
                         help="eval feature")
     ## files
     parser.add_argument('--train_feature', default='data/feature_train.txt',
