@@ -82,7 +82,7 @@ def generator_fn(sents1, sents2):
         x = np.reshape(list(sent1),[10,12])  # 120 number
         y = np.reshape(list(sent1)[-12:]+list(sent2), [11,12])
         decoder_input, y = y[:-1], y[1:]
-
+        print(np.shape(x))
         yield (x), (decoder_input, y)
 
 
