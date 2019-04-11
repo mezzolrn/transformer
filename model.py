@@ -51,7 +51,7 @@ class Transformer:
             x = tf.reshape(x, [-1, 10, hp.feature_num])
             enc = tf.layers.dense(x, 512, activation=tf.nn.relu)
 
-#             print(3333,enc.get_shape())
+            print(3333,enc.get_shape())
             d_2 = tf.constant(self.hp.d_model**0.5)
             enc *= d_2  # scale
 
@@ -88,13 +88,13 @@ class Transformer:
             decoder_inputs, y, y_3 = ys
 
             # embedding
-#             print(6666,decoder_inputs.get_shape())
+            print(6666,decoder_inputs.get_shape())
 
             decoder_inputs = tf.reshape(decoder_inputs, [hp.batch_size, -1, hp.feature_num])
-#             print(5555,decoder_inputs.get_shape())
+            print(5555,decoder_inputs.get_shape())
 
             dec = tf.layers.dense(decoder_inputs, 512,)
-#             print(4444,dec.get_shape())
+            print(4444,dec.get_shape())
 
             d_2 = tf.constant(self.hp.d_model**0.5)
             dec *= d_2  # scale
@@ -154,10 +154,10 @@ class Transformer:
         y_ = y
         y_3 = label_smoothing(y_3)
 
-#         print(2222,y.get_shape(), logits.get_shape())
+        print(2222,y.get_shape(), logits.get_shape())
         loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y_)
         loss_3 = tf.nn.softmax_cross_entropy_with_logits_v2(logits=class_3, labels=y_3)
-#         print(1111,loss.get_shape())
+        print(1111,loss.get_shape())
 #         nonpadding = tf.to_float(tf.not_equal(y, 0))  # 0: <pad>
 #         loss_total = tf.reduce_mean(loss) + tf.reduce_mean(loss_3)
 #         print(loss_total)
@@ -185,10 +185,10 @@ class Transformer:
         y_hat: (N, T2)
         '''
         decoder_inputs, y, y_3 = ys
-#         print(7777,decoder_inputs.get_shape())
+        print(7777,decoder_inputs.get_shape())
         decoder_inputs = tf.reshape(decoder_inputs, [hp.batch_size, 10, hp.feature_num])
         decoder_inputs = decoder_inputs[:,0:1,:]
-#         print(9999,decoder_inputs.get_shape())
+        print(9999,decoder_inputs.get_shape())
 
         ys = (decoder_inputs, y, y_3)
         memory = self.encode(xs, False)
@@ -196,9 +196,9 @@ class Transformer:
         logging.info("Inference graph is being built. Please be patient.")
         for i in tqdm(range(10)):
             logits, y, class_3 = self.decode(ys, memory, False)
-#             print(8888,logits.get_shape())
+            print(8888,logits.get_shape())
             _decoder_inputs = tf.concat((decoder_inputs, logits), 1)
-#             print(9999,_decoder_inputs.get_shape())
+            print(9999,_decoder_inputs.get_shape())
 
             ys = (_decoder_inputs, y, y_3)
 

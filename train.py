@@ -69,7 +69,7 @@ with tf.Session() as sess:
     total_steps = hp.num_epochs * num_train_batches
     _gs = sess.run(global_step)
     for i in tqdm(range(_gs, total_steps+1)):
-        _, _gs, _summary = sess.run([train_op, global_step, train_summaries])
+        _, _gs, _summary, _class_3, _y_3 = sess.run([train_op, global_step, train_summaries, class_3, y_3])
         epoch = math.ceil(_gs / num_train_batches)
         summary_writer.add_summary(_summary, _gs)
 
@@ -81,39 +81,38 @@ with tf.Session() as sess:
             _, _eval_summaries = sess.run([eval_init_op, eval_summaries])
             summary_writer.add_summary(_eval_summaries, _gs)
 
-            #save model
+            logging.info("# get hypotheses")
+            hypotheses_feature_str, hypotheses_feature = get_hypotheses(num_eval_batches, num_eval_samples, sess, logits)
+            hypotheses_label_str, hypotheses_label = q(num_eval_batches, num_eval_samples, sess, class_3)
+
+            logging.info("# write results")
+            
+            model_output = "feature_%02dL%.2f" % (epoch, _loss)
+            if not os.path.exists(hp.evaldir): os.makedirs(hp.evaldir)
+            translation = os.path.join(hp.evaldir, model_output)
+            with open(translation, 'w') as fout:
+                fout.write("\n".join(hypotheses_feature_str))
+
+#             logging.info("# save models")
+#             ckpt_name = os.path.join(hp.logdir, model_output)
+#             saver.save(sess, ckpt_name, global_step=_gs)
+#             logging.info("after training of {} epochs, {} has been saved.".format(epoch, ckpt_name))
+            
+            
+            
             model_output = "model_epoch%02d_loss%.2f" % (epoch, _loss)
+            if not os.path.exists(hp.evaldir): os.makedirs(hp.evaldir)
+            translation = os.path.join(hp.evaldir, model_output)
+            with open(translation, 'w') as fout:
+                fout.write("\n".join(hypotheses_label_str))
+                
             logging.info("# save models")
             if not os.path.exists(hp.logdir): os.makedirs(hp.logdir)
             ckpt_name = os.path.join(hp.logdir, model_output)
             saver.save(sess, ckpt_name, global_step=_gs)
             logging.info("after training of {} epochs, {} has been saved.".format(epoch, ckpt_name))
-            
-            #load model
-#             ckpt = tf.train.latest_checkpoint(hp.logdir)
-#             saver.restore(sess, ckpt)
-            
-            logging.info("# get hypotheses")
-#             hypotheses_feature_str, hypotheses_feature = get_hypotheses(num_eval_batches, num_eval_samples, sess, logits)
-            hypotheses_label_str, hypotheses_label = get_hypotheses(num_eval_batches, num_eval_samples, sess, class_3)
 
-            logging.info("# write results")
-    
-#             #save predict feature
-#             feature_output = "feature_%02dL%.2f" % (epoch, _loss)
-#             if not os.path.exists(hp.evaldir): os.makedirs(hp.evaldir)
-#             translation = os.path.join(hp.evaldir, model_output)
-#             with open(translation, 'w') as fout:
-#                 fout.write("\n".join(hypotheses_feature_str))
-
-            #save predict label
-            label_output = "label_epoch%02d_loss%.2f" % (epoch, _loss)
-            if not os.path.exists(hp.evaldir): os.makedirs(hp.evaldir)
-            translation = os.path.join(hp.evaldir, label_output)
-            with open(translation, 'w') as fout:
-                fout.write("\n".join(hypotheses_label_str))
-    
-    
+            
             y_true = open(hp.prepro_eval_label_post, 'r', encoding='utf-8').readlines()
             for i in range(len(y_true)):
                 tmp = y_true[i].strip().split(' ')

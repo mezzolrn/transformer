@@ -53,19 +53,21 @@ with tf.Session() as sess:
     saver.restore(sess, ckpt)
 
     sess.run(test_init_op)
-    print(sess)
+
     logging.info("# get hypotheses")
-#     hypotheses_feature_str, hypotheses_feature = get_hypotheses(num_test_batches, num_test_samples, sess, logits)
+    hypotheses_feature_str, hypotheses_feature = get_hypotheses(num_test_batches, num_test_samples, sess, logits)
+
+    logging.info("# write results")
+    model_output = ckpt.split("/")[-1]
+    if not os.path.exists(hp.testdir): os.makedirs(hp.testdir)
+    translation = os.path.join(hp.testdir, model_output)
+    with open(translation, 'w') as fout:
+        fout.write("\n".join(hypotheses_feature_str))
+        
+    logging.info("# get hypotheses")
     hypotheses_label_str, hypotheses_label = get_hypotheses(num_test_batches, num_test_samples, sess, pre_3)
 
     logging.info("# write results")
-    
-#     model_output = ckpt.split("/")[-1]
-#     if not os.path.exists(hp.testdir): os.makedirs(hp.testdir)
-#     translation = os.path.join(hp.testdir, model_output)
-#     with open(translation, 'w') as fout:
-#         fout.write("\n".join(hypotheses_feature_str))
-        
     model_output = ckpt.split("/")[-1]
     if not os.path.exists(hp.testdir): os.makedirs(hp.testdir)
     translation = os.path.join(hp.testdir, model_output+'_label')

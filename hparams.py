@@ -35,7 +35,7 @@ class Hparams:
 
     # training scheme
     parser.add_argument('--batch_size', default=8, type=int)
-    parser.add_argument('--eval_batch_size', default=8, type=int)
+    parser.add_argument('--eval_batch_size', default=1, type=int)
 
     parser.add_argument('--lr', default=0.00003, type=float, help="learning rate")
     parser.add_argument('--warmup_steps', default=4000, type=int)
@@ -51,7 +51,7 @@ class Hparams:
                         help="hidden dimension of feedforward layer")
     parser.add_argument('--num_blocks', default=6, type=int,
                         help="number of encoder/decoder blocks")
-    parser.add_argument('--num_heads', default=2, type=int,
+    parser.add_argument('--num_heads', default=4, type=int,
                         help="number of attention heads")
     parser.add_argument('--maxlen1', default=10, type=int,
                         help="maximum length of a source sequence")
@@ -67,5 +67,5 @@ class Hparams:
     parser.add_argument('--test_label', default='data/label_eval.txt',
                         help="test_label")
     parser.add_argument('--ckpt', help="checkpoint file path")
-    parser.add_argument('--test_batch_size', default=8, type=int)
+    parser.add_argument('--test_batch_size', default=1, type=int)
     parser.add_argument('--testdir', default="test/1", help="test result dir")
